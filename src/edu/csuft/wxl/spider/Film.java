@@ -6,7 +6,7 @@ package edu.csuft.wxl.spider;
  * @author wtao
  *
  */
-public class Film {
+public class Film implements Comparable<Film> {
 
 	/**
 	 * 影片名称
@@ -57,6 +57,12 @@ public class Film {
 		return "Film [title=" + title + ", info=" + info + ", rating=" + rating
 				+ ", num=" + num + ", id=" + id + ", poster=" + poster
 				+ ", quote=" + quote + "]";
+	}
+
+	@Override
+	public int compareTo(Film o) {
+		// TODO Auto-generated method stub
+		return id-o.id;
 	}
 
 	

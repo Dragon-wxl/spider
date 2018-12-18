@@ -2,6 +2,7 @@ package edu.csuft.wxl.spider;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,17 +42,17 @@ public class App {
 				e.printStackTrace();
 			}
 		}
-		
+
 		System.out.println(list.size());
 		// 数据排序
 		for (Film film : list) {
 			System.out.print(film.toCSV());
 		}
-		 String file="E:/file.csv";//绝对路径
-//		file = "film.csv";// 相对路径
-
-		try(FileWriter out=new FileWriter(file)) {
-			//写数据
+		String file = "E:/file.csv";// 绝对路径
+		// file = "film.csv";// 相对路径
+		Collections.sort(list);
+		try (FileWriter out = new FileWriter(file)) {
+			// 写数据
 			for (Film film : list) {
 				out.write(film.toCSV());
 			}
@@ -59,8 +60,6 @@ public class App {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-
-	
 
 	}
 
