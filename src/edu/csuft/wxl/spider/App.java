@@ -1,56 +1,67 @@
 package edu.csuft.wxl.spider;
 
-import java.io.IOException;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import jdk.jfr.events.FileWriteEvent;
 
 /**
  * 
- * @author wtao
- *
+ * @author wxljllm
+ * 
  */
 public class App {
 
 	// alt + /
 	// ctrl + s
 	public static void main(String[] args) {
+		// 线程池
+		// 固定大小
+		ExecutorService pool = Executors.newFixedThreadPool(4);
 
-		// 目标 URL
-		String url = "https://movie.douban.com/top250";
+		// 无线（缓存）
+		pool = Executors.newCachedThreadPool();
+		// 一个线程
+		// pool=Executors.newSingleThreadExecutor();
+		String url = "https://movie.douban.com/top250?start=";
 		ArrayList<Film> list = new ArrayList<>();
-		// 使用 JSOUP 抓去文档
-		try {
-			Document doc = Jsoup.connect(url).get();
-
-			Elements es = doc.select(".grid_view .item");
-
-			// 创建一个影片的列表
-		
-
-			for (Element e : es) {
-			    Film f=new Film();
-				Element t=e.select(".pic em").first();
-				f.id=Integer.parseInt(t.text());
-				f.poster=e.select("img").first().attr("src");
-				f.info=e.select(".bd p").first().text();
-				f.title=e.select(".title").first().text();
-				f.rating=Double.parseDouble(e.select(".rating_num").first().text());
-				String num=e.select(".star span").last().text();
-				f.num=Integer.parseInt(num.substring(0,num.length()-3));
-				f.quote=e.select(".inq").first().text();
-				System.out.println(f);
-				list.add(f);
-				
+		for (int i = 0; i < 10; i++) {
+			String path = String.format("%s%d", url, i * 25);
+			pool.submit(new Spider(path, list));
+		}
+		pool.shutdown();
+		System.out.println(pool.isTerminated());
+		while (!pool.isTerminated()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}
+		
+		System.out.println(list.size());
+		// 数据排序
+		for (Film film : list) {
+			System.out.print(film.toCSV());
+		}
+		 String file="E:/file.csv";//绝对路径
+//		file = "film.csv";// 相对路径
+
+		try(FileWriter out=new FileWriter(file)) {
+			//写数据
+			for (Film film : list) {
+				out.write(film.toCSV());
+			}
+			System.out.println("ok");
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 
-		
+	
+
 	}
+
 }
